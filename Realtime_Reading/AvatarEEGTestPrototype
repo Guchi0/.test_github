@@ -1,0 +1,71 @@
+# ============================================ TEST 2b
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ユーザーから文字列を入力する
+cstr = input('enter str? ')  # ex. Avatar_04137_2022-08-01_18-20-39
+
+# ファイル名を作成する
+fnm = cstr + '.bdf'
+
+# ファイルを開く
+fid = open(fnm, 'rb')
+
+# チャンネル数（経験的な値）
+numChan = 30
+
+# ファイルポインタを移動する
+fid.seek(256*(17+1), 0)  # should be corrected, too long
+
+# データを格納するための空の配列を用意する
+dat = np.empty((0, numChan), int)
+
+# ファイルを読み込んで、データを配列に格納する
+while True:
+    pos1 = fid.tell()
+    aux = np.fromfile(fid, dtype='int32', count=numChan)
+
+    if aux.size == numChan:
+        dat = np.vstack([dat, aux])
+    else:
+        fid.seek(pos1)
+
+    # 500サンプルごとに、最後の10チャンネルの信号をプロットする
+    if dat.shape[0] % 500 == 0:
+        plt.plot(dat[:, -10:])
+        plt.show()
+
+# データ配列の最後の10チャンネルの信号を取得する
+dat1 = dat[-11:-10, :]
+
+# ファイルを閉じる
+fid.close()
+
+
+
+# ファイル名の入力
+cstr = input('enter str? ')  # ex. Avatar_04137_2022-08-01_18-20-39
+fnm = cstr + '.bdf'
+print(fnm)
+
+# ファイルの読み込み
+with open(fnm, 'rb') as fid:
+    numChan = 30  # empirical value
+    fid.seek(256*(17+1))  # should be corrected, too long
+    dat = np.empty((0, numChan))
+    while True:
+        pos1 = fid.tell()
+        aux = np.fromfile(fid, dtype='int32', count=numChan)
+        if len(aux) == numChan:
+            dat = np.vstack((dat, aux))
+        else:
+            fid.seek(pos1)
+        if dat.shape[0] % 500 == 0:
+            plt.plot(dat[numChan-10, :])
+            plt.show(block=False)
+
+dat1 = dat[numChan-10, :]
+
+# ファイルを閉じる
+fid.close()
